@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدير المفردات الإنجليزية الاحترافي</title>
+  <style>
+    :root {
+      /* الألوان للوضع الفاتح */
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --container-bg: rgba(255, 255, 255, 0.98);
+      --text-color: #333333;
+      --input-bg: #f8fafc;
+      --input-border: #cbd5e1;
+      --table-header-bg: linear-gradient(45deg, #4776E6, #8E54E9);
+      --table-row-even: #f8fafc;
+      --table-row-hover: #f1f5f9;
+      --border-color: #f1f5f9;
+      --english-color: #2563eb;
+      --stats-bg: #f1f5f9;
+      --stats-color: #64748b;
+      --empty-msg: #94a3b8;
+      --card-bg: #ffffff;
+    }
+
+    /* ألوان الوضع الليلي */
+    [data-theme="dark"] {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --container-bg: rgba(30, 41, 59, 0.98);
+      --text-color: #f1f5f9;
+      --input-bg: #0f172a;
+      --input-border: #334155;
+      --table-header-bg: linear-gradient(45deg, #312e81, #4c1d95);
+      --table-row-even: #1e293b;
+      --table-row-hover: #334155;
+      --border-color: #334155;
+      --english-color: #38bdf8;
+      --stats-bg: #0f172a;
+      --stats-color: #94a3b8;
+      --empty-msg: #64748b;
+      --card-bg: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      margin: 0;
+      padding: 30px 15px;
+      color: var(--text-color);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: var(--container-bg);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    h1 {
+      background: linear-gradient(45deg, #FF416C, #FF4B2B);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .theme-toggle-btn, .quiz-mode-btn {
+      background: var(--input-bg);
+      border: 2px solid var(--input-border);
+      color: var(--text-color);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .quiz-mode-btn {
+      background: linear-gradient(45deg, #FF8008, #FFC837);
+      color: white;
+      border: none;
+    }
+
+    .quiz-mode-btn:hover {
+      opacity: 0.9;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 18px;
+      border: 2px solid var(--input-border);
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+    }
+
+    input[type="text"]:focus {
+      border-color: #764ba2;
+      box-shadow: 0 0 10px rgba(118, 75, 162, 0.3);
+    }
+
+    .btn-add, .btn-quiz-action {
+      padding: 12px 25px;
+      background: linear-gradient(45deg, #11998e, #38ef7d);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(56, 239, 125, 0.3);
+    }
+
+    .btn-add:hover, .btn-quiz-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(56, 239, 125, 0.4);
+    }
+
+    .search-box input {
+      width: 100%;
+    }
+
+    .stats {
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: var(--stats-color);
+      background-color: var(--stats-bg);
+      display: inline-block;
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: transparent;
+    }
+
+    th {
+      background: var(--table-header-bg);
+      color: white;
+      padding: 15px;
+      text-align: right;
+      font-size: 16px;
+    }
+
+    td {
+      padding: 14px 15px;
+      text-align: right;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    tr:nth-child(even) {
+      background-color: var(--table-row-even);
+    }
+
+    tr:hover {
+      background-color: var(--table-row-hover);
+    }
+
+    td.english-cell {
+      direction: ltr;
+      text-align: left;
+      font-weight: bold;
+      color: var(--english-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-speak {
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid var(--english-color);
+      color: var(--english-color);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .btn-speak:hover {
+      transform: scale(1.1);
+      background: var(--english-color);
+      color: white;
+    }
+
+    .btn-delete {
+      background: linear-gradient(45deg, #FF416C, #FF4B2B);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .btn-delete:hover {
+      opacity: 0.9;
+    }
+
+    .empty-msg {
+      text-align: center;
+      padding: 30px;
+      color: var(--empty-msg);
+      font-weight: 500;
+    }
+
+    /* === نمط واجهة الاختبار === */
+    .quiz-container {
+      display: none;
+      background: var(--card-bg);
+      border: 2px solid var(--input-border);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .quiz-card {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--english-color);
+      margin: 20px 0;
+      direction: ltr;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .quiz-feedback {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      min-height: 27px;
+    }
+
+    .feedback-correct {
+      color: #10b981;
+    }
+
+    .feedback-wrong {
+      color: #ef4444;
+    }
+
+    .btn-secondary {
+      background: #64748b;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header-bar">
+      <h1>🎨 مدير المفردات الإنجليزية</h1>
+      <div class="header-actions">
+        <button class="quiz-mode-btn" id="startQuizBtn">🧠 بدء الاختبار</button>
+        <button class="theme-toggle-btn" id="themeToggleBtn">
+          <span id="themeIcon">🌙</span> <span id="themeText">الوضع الليلي</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- واجهة الإدارة الرئيسية -->
+    <div id="mainSection">
+      <!-- نموذج إضافة كلمة -->
+      <form id="wordForm" class="form-group">
+        <input type="text" id="englishWord" placeholder="الكلمة بالإنجليزية (English)" required dir="ltr">
+        <input type="text" id="arabicTranslation" placeholder="الترجمة بالعربية" required>
+        <button type="submit" class="btn-add">إضافة الكلمة ✨</button>
+      </form>
+
+      <!-- شريط البحث -->
+      <div class="search-box" style="margin-bottom: 15px;">
+        <input type="text" id="searchInput" placeholder="🔍 ابحث عن كلمة إنجليزية أو ترجمة عربية...">
+      </div>
+
+      <!-- الإحصائيات -->
+      <div class="stats" id="wordCount">إجمالي الكلمات: 0</div>
+
+      <!-- جدول الكلمات -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: left;">English Word</th>
+              <th>الترجمة العربية</th>
+              <th style="width: 100px; text-align: center;">إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="wordsTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="emptyMessage" class="empty-msg" style="display: none;">
+        لا توجد كلمات محفوظة حالياً. أضف بعض الكلمات للبدء!
+      </div>
+    </div>
+
+    <!-- واجهة الاختبار (Quiz Mode) -->
+    <div id="quizSection" class="quiz-container">
+      <h2>🎯 اختبار الكلمات المحفوظة</h2>
+      <div class="stats" id="quizProgress">السؤال 1 من 5</div>
+
+      <div class="quiz-card">
+        <button class="btn-speak" id="quizSpeakBtn">🔊</button>
+        <span id="quizQuestion">Word</span>
+      </div>
+
+      <form id="quizForm" class="form-group" style="justify-content: center;">
+        <input type="text" id="quizAnswer" placeholder="اكتب الترجمة بالعربية هنا..." required autocomplete="off">
+        <button type="submit" class="btn-quiz-action" id="quizSubmitBtn">تحقق من الإجابة</button>
+      </form>
+
+      <div id="quizFeedback" class="quiz-feedback"></div>
+
+      <div style="margin-top: 20px;">
+        <button class="btn-secondary" id="exitQuizBtn">خروج من الاختبار</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let vocabulary = JSON.parse(localStorage.getItem('myVocabulary')) || [];
+
+    // عناصر الصفحة الرئيسية
+    const mainSection = document.getElementById('mainSection');
+    const wordForm = document.getElementById('wordForm');
+    const englishWordInput = document.getElementById('englishWord');
+    const arabicTranslationInput = document.getElementById('arabicTranslation');
+    const searchInput = document.getElementById('searchInput');
+    const wordsTableBody = document.getElementById('wordsTableBody');
+    const wordCount = document.getElementById('wordCount');
+    const emptyMessage = document.getElementById('emptyMessage');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    // عناصر وضع الاختبار
+    const startQuizBtn = document.getElementById('startQuizBtn');
+    const quizSection = document.getElementById('quizSection');
+    const quizProgress = document.getElementById('quizProgress');
+    const quizQuestion = document.getElementById('quizQuestion');
+    const quizAnswer = document.getElementById('quizAnswer');
+    const quizForm = document.getElementById('quizForm');
+    const quizFeedback = document.getElementById('quizFeedback');
+    const quizSpeakBtn = document.getElementById('quizSpeakBtn');
+    const exitQuizBtn = document.getElementById('exitQuizBtn');
+    const quizSubmitBtn = document.getElementById('quizSubmitBtn');
+
+    let quizWords = [];
+    let currentQuizIndex = 0;
+    let score = 0;
+
+    // === إدارة الوضع الليلي ===
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeIcon.textContent = '☀️';
+      themeText.textContent = 'الوضع الفاتح';
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      let theme = document.documentElement.getAttribute('data-theme');
+      if (theme === 'dark') {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'الوضع الليلي';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'الوضع الفاتح';
+      }
+    });
+
+    // === ميزة نطق الكلمات الصوتية ===
+    function speakWord(word) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // === إدارة وضع الاختبار (Quiz Mode) ===
+    startQuizBtn.addEventListener('click', () => {
+      if (vocabulary.length === 0) {
+        alert('يرجى إضافة بعض الكلمات أولاً للبدء في الاختبار!');
+        return;
+      }
+
+      // خلط ترتيب الكلمات عشوائياً
+      quizWords = [...vocabulary].sort(() => Math.random() - 0.5);
+      currentQuizIndex = 0;
+      score = 0;
+
+      mainSection.style.display = 'none';
+      startQuizBtn.style.display = 'none';
+      quizSection.style.display = 'block';
+
+      loadQuizQuestion();
+    });
+
+    function loadQuizQuestion() {
+      quizFeedback.textContent = '';
+      quizFeedback.className = 'quiz-feedback';
+      quizAnswer.value = '';
+      quizAnswer.disabled = false;
+      quizSubmitBtn.textContent = 'تحقق من الإجابة';
+
+      const currentWord = quizWords[currentQuizIndex];
+      quizQuestion.textContent = currentWord.english;
+      quizProgress.textContent = `السؤال ${currentQuizIndex + 1} من ${quizWords.length}`;
+
+      quizSpeakBtn.onclick = () => speakWord(currentWord.english);
+      quizAnswer.focus();
+    }
+
+    quizForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const currentWord = quizWords[currentQuizIndex];
+      const userAnswer = quizAnswer.value.trim();
+
+      if (quizAnswer.disabled) {
+        // الانتقال للكلمة التالية
+        currentQuizIndex++;
+        if (currentQuizIndex < quizWords.length) {
+          loadQuizQuestion();
+        } else {
+          showQuizResults();
+        }
+        return;
+      }
+
+      // التحقق من الإجابة
+      quizAnswer.disabled = true;
+      if (userAnswer === currentWord.arabic) {
+        score++;
+        quizFeedback.textContent = '✨ إجابة صحيحة! أحسنت.';
+        quizFeedback.className = 'quiz-feedback feedback-correct';
+      } else {
+        quizFeedback.textContent = `❌ إجابة خاطئة! الترجمة الصحيحة هي: (${currentWord.arabic})`;
+        quizFeedback.className = 'quiz-feedback feedback-wrong';
+      }
+
+      quizSubmitBtn.textContent = (currentQuizIndex + 1 < quizWords.length) ? 'الكلمة التالية ➔' : 'إنهاء الاختبار 🏁';
+    });
+
+    function showQuizResults() {
+      quizQuestion.textContent = '🎉 اكتمل الاختبار!';
+      quizProgress.textContent = `النتيجة النهائية: ${score} من ${quizWords.length}`;
+      quizForm.style.display = 'none';
+      quizSpeakBtn.style.display = 'none';
+      quizFeedback.textContent = `لقد أجبت بشكل صحيح على ${score} من أصل ${quizWords.length} كلمة!`;
+      quizFeedback.className = 'quiz-feedback feedback-correct';
+    }
+
+    exitQuizBtn.addEventListener('click', () => {
+      quizSection.style.display = 'none';
+      mainSection.style.display = 'block';
+      startQuizBtn.style.display = 'flex';
+      quizForm.style.display = 'flex';
+      quizSpeakBtn.style.display = 'inline-flex';
+    });
+
+    // === إدارة الكلمات الأصلية ===
+    function saveToLocalStorage() {
+      localStorage.setItem('myVocabulary', JSON.stringify(vocabulary));
+    }
+
+    function renderWords(filterText = '') {
+      wordsTableBody.innerHTML = '';
+      
+      const filteredWords = vocabulary.filter(item => 
+        item.english.toLowerCase().includes(filterText.toLowerCase()) ||
+        item.arabic.includes(filterText)
+      );
+
+      wordCount.textContent = `إجمالي الكلمات: ${filteredWords.length}`;
+
+      if (filteredWords.length === 0) {
+        emptyMessage.style.display = 'block';
+      } else {
+        emptyMessage.style.display = 'none';
+        
+        filteredWords.forEach(item => {
+          const row = document.createElement('tr');
+
+          row.innerHTML = `
+            <td class="english-cell">
+              <button class="btn-speak" title="استماع للنطق" onclick="speakWord('${escapeJsString(item.english)}')">🔊</button>
+              <span>${escapeHtml(item.english)}</span>
+            </td>
+            <td>${escapeHtml(item.arabic)}</td>
+            <td style="text-align: center;">
+              <button class="btn-delete" onclick="deleteWord(${item.id})">حذف</button>
+            </td>
+          `;
+
+          wordsTableBody.appendChild(row);
+        });
+      }
+    }
+
+    wordForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const newWord = {
+        id: Date.now(),
+        english: englishWordInput.value.trim(),
+        arabic: arabicTranslationInput.value.trim()
+      };
+
+      vocabulary.unshift(newWord);
+      saveToLocalStorage();
+      renderWords();
+
+      englishWordInput.value = '';
+      arabicTranslationInput.value = '';
+      englishWordInput.focus();
+    });
+
+    function deleteWord(id) {
+      vocabulary = vocabulary.filter(item => item.id !== id);
+      saveToLocalStorage();
+      renderWords(searchInput.value);
+    }
+
+    searchInput.addEventListener('input', function(e) {
+      renderWords(e.target.value);
+    });
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function escapeJsString(str) {
+      return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    renderWords();
+  </script>
+
+</body>
+</html>
